@@ -27,7 +27,7 @@ class Card {
 
 const deck: Array<Card> = []
 for (const suit of [Suit.diamonds, Suit.clubs, Suit.hearts, Suit.spades]) {
-	for (let value = 2; value <= 13; ++value) {
+	for (let value = 2; value <= 130; ++value) {
 		deck.push(new Card(suit, value))
 	}
 }
@@ -51,43 +51,42 @@ function print() {
 shuffle(deck)
 print()
 
-function sort(arr) {
-	function sortHelper(part, low, high): Array<Card> {
-		if (low < high) {
-			const middle = Math.floor((low + high) / 2)
+let sizeCalculator = 0
 
-			const left = sortHelper(part, low, middle)
-			const right = sortHelper(part, middle + 1, high)
-			const result = []
+function sort(arr: Array<Card>) {
+	if (arr.length > 1) {
+		const middle = Math.floor(arr.length / 2)
 
-			let li = 0
-			let ri = 0
-			while (li < left.length && ri < right.length) {
-				if (left[li].lessOrEq(right[ri])) {
-					result.push(left[li++])
-				} else {
-					result.push(right[ri++])
-				}
-			}
-			while (li < left.length) {
-				result.push(left[li++])
-			}
-			while (ri < right.length) {
-				result.push(right[ri++])
-			}
+		const left = arr.slice(0, middle)
+		const right = arr.slice(middle)
 
-			return result
-		} else if (low == high) {
-			return [part[low]]
+		sizeCalculator += left.length + right.length
+
+		sort(left)
+		sort(right)
+
+		let ki = 0
+		let li = 0
+		let ri = 0
+
+		while (li < left.length && ri < right.length) {
+			if (left[li].lessOrEq(right[ri])) {
+				arr[ki++] = left[li++]
+			} else {
+				arr[ki++] = right[ri++]
+			}
 		}
-	}
-
-	const copy = sortHelper(arr, 0, arr.length - 1)
-	for (let i = 0; i < copy.length; ++i) {
-		arr[i] = copy[i]
+		while (li < left.length) {
+			arr[ki++] = left[li++]
+		}
+		while (ri < right.length) {
+			arr[ki++] = right[ri++]
+		}
 	}
 }
 
 console.log(' ')
 sort(deck)
 print()
+console.log('total size', deck.length)
+console.log('total size', sizeCalculator)
