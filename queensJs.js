@@ -2,46 +2,46 @@ class Board {
   constructor(N) {
     this.queens = []
 
-    // main ones
-    this.beam1 = []
-    this.beam2 = []
-    this.beam3 = []
+    this.slashCodes = []
+    this.backCodes = []
     for (let i = 0; i < N; ++i) {
-      this.beam1.push(false)
-      this.beam2.push(false)
-      this.beam3.push(false)
-    }
+      this.slashCodes[i] = new Array(N)
+      this.backCodes[i] = new Array(N)
 
-    // for undo
-    this.beam0 = []
-  }
-
-  placeQueen(col) {
-    this.queens.push(col)
-  }
-
-  canPlace(col, row) {
-    for (let queenRow = this.queens.length - 1; queenRow >= 0; --queenRow) {
-      const queenCol = this.queens[queenRow]
-
-      if (
-        queenCol === col ||
-        queenRow === row ||
-        Math.abs((queenCol - col)) === Math.abs((queenRow - row))
-      ) {
-        return false
+      for (let j = 0; j < N; ++j) {
+        this.slashCodes[i][j] = i - j + N
+        this.backCodes[i][j] = i + j
       }
     }
 
-    return true
+    this.occupiedCols = {}
+    this.occupiedSlashes = {}
+    this.occupiedBacks = {}
+  }
+
+  placeQueen(col) {
+    const row = this.queens.push(col) - 1
+
+    this.occupiedCols[col] = true
+    this.occupiedSlashes[this.slashCodes[col][row]] = true
+    this.occupiedBacks[this.backCodes[col][row]] = true
   }
 
   unPlace() {
-    this.queens.pop()
+    const row = this.queens.length - 1
+    const col = this.queens.pop()
+
+    delete this.occupiedCols[col]
+    delete this.occupiedSlashes[this.slashCodes[col][row]]
+    delete this.occupiedBacks[this.backCodes[col][row]]
   }
 
-  printOlymp() {
-    this.queens.forEach(q => console.log(q))
+  canPlace(col, row) {
+    return (
+      !this.occupiedCols[col] &&
+      !this.occupiedSlashes[this.slashCodes[col][row]] &&
+      !this.occupiedBacks[this.backCodes[col][row]]
+    )
   }
 
   toString() {
@@ -56,6 +56,10 @@ class Board {
     }
     return out
   }
+
+  printOlymp() {
+    this.queens.forEach(q => console.log(q))
+  }
 }
 
 function solveFor(N) {
@@ -64,7 +68,7 @@ function solveFor(N) {
       return board
     }
 
-    let randomColumnOffset = Math.floor(N * Math.random())
+    let randomColumnOffset = Math.floor(N * 0.9189991)
     for (let columnOffset = 0; columnOffset < N; ++columnOffset) {
       const column = (randomColumnOffset + columnOffset) % N
 
@@ -81,21 +85,21 @@ function solveFor(N) {
     return null
   }
 
-  return place(new Board())
+  return place(new Board(N))
 }
 
-// process.stdin.on('data', function (data) {
-//   const N = parseInt(data)
-//   solveFor(N).printOlymp()
-// })
+process.stdin.on('data', function (data) {
+  const N = parseInt(data)
+  solveFor(N).printOlymp()
+})
 
 
-for (let i = 4; i < 10; ++i) {
-  const key = `${i} queens`
-  console.time(key)
-  const result = solveFor(i)
-  console.timeEnd(key)
-
-  console.log(result + '\n\n')
-}
-
+// for (let i = 4; i < 10000; ++i) {
+//   const key = `${i} queens`
+//   console.time(key)
+//   const result = solveFor(i)
+//   console.timeEnd(key)
+//
+//   // console.log(result + '\n\n')
+// }
+//
