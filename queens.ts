@@ -4,6 +4,7 @@ type Queen = {
 }
 
 class Board {
+	// for toString() only
 	private readonly arr: ReadonlyArray<Array<boolean>>
 	private readonly queens: Array<Queen>
 
@@ -31,7 +32,6 @@ class Board {
 	public placeQueen(i: number, j: number) {
 		this.arr[i][j] = true
 		this.queens.push({ i, j })
-		return this.queens[this.queens.length - 1]
 	}
 
 	public undoLast() {
@@ -53,60 +53,53 @@ class Board {
 	}
 
 	public hashCode() {
-		return this.queens.map(queen => `${queen.i}#${queen.j}`).join('#')
+		return this.queens.map(queen => `${queen.i}-${queen.j}`).join('#')
 	}
 }
 
 function solveFor(N: number) {
-	const memo = {}
-
-	function place(board: Board, queensLeft: number = N, offset: number = 0) {
-		const key = `${board.hashCode()}#${queensLeft}#${offset}`
-		if (memo[key]) {
-			return memo[key]
-		}
-
-		// console.log({ queensLeft, offset })
+	function place(board: Board, queensLeft: number = N) {
+		// console.log({ queensLeft })
 		// console.log('' + board)
 
 		if (queensLeft <= 0) {
 			return board
 		}
 
-		if (offset >= N) {
-			return null
-		}
-		const j = N - queensLeft
-
-		let placed: null | Queen = null
-		for (let i = offset; i < N; ++i) {
-			if (board.canPlace(i, j)) {
-				placed = board.placeQueen(i, j)
-				break
+		const row = N - queensLeft
+		for (let column = 0; column < N; ++column) {
+			if (board.canPlace(column, row)) {
+				board.placeQueen(column, row)
+				const subBoard = place(board, queensLeft - 1)
+				if (subBoard) {
+					return subBoard
+				}
+				board.undoLast()
 			}
 		}
 
-		if (!placed) {
-			return null
-		}
-
-		const subBoard = place(board, queensLeft - 1, 0)
-		if (subBoard) {
-			return memo[key] = subBoard
-		} else {
-			board.undoLast()
-			return place(board, queensLeft, offset + 1)
-		}
+		return null
 	}
 
 	return place(new Board(N))
 }
 
+// for (let i = 20; i < 100; i += 5) {
+// 	const key = `${i} queens`
+// 	console.time(key)
+// 	for (let j = 0; j < 10; ++j) {
+// 		const result = solveFor(i)
+// 	}
+// 	console.timeEnd(key)
+//
+// 	// console.log(result + '\n\n')
+// }
+
 for (let i = 4; i < 20; ++i) {
 	const key = `${i} queens`
 	console.time(key)
-	solveFor(i)
+	const result = solveFor(i)
 	console.timeEnd(key)
-}
 
-// console.log('' + solveFor(8))
+	console.log(result + '\n\n')
+}
