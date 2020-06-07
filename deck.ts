@@ -51,6 +51,7 @@ function print() {
 shuffle(deck)
 print()
 
+let maxSize = 0
 let sizeCalculator = 0
 
 function sort(arr: Array<Card>) {
@@ -61,6 +62,7 @@ function sort(arr: Array<Card>) {
 		const right = arr.slice(middle)
 
 		sizeCalculator += left.length + right.length
+		maxSize = Math.max(maxSize, sizeCalculator)
 
 		sort(left)
 		sort(right)
@@ -82,6 +84,8 @@ function sort(arr: Array<Card>) {
 		while (ri < right.length) {
 			arr[ki++] = right[ri++]
 		}
+
+		sizeCalculator -= left.length + right.length
 	}
 }
 
@@ -89,4 +93,4 @@ console.log(' ')
 sort(deck)
 print()
 console.log('total size', deck.length)
-console.log('total size', sizeCalculator)
+console.log('total auxiliary size', maxSize)
