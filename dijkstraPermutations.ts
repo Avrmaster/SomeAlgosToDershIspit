@@ -47,4 +47,4 @@ function permutations(n: number): Array<Permutation> {
 	return results
 }
 
-console.log(permutations(5).join('\n'))
+console.log(permutations(3).join('\n'))
